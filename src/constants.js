@@ -43,7 +43,7 @@ import csprepLogo from './assets/work_logo/chatbot.png';
 import movierecLogo from './assets/work_logo/healthquest.png';
 // import taskremLogo from './assets/work_logo/.png';
 import npmLogo from './assets/work_logo/tictac.png';
-// import webverLogo from './assets/work_logo/web_dig.png';
+import webverLogo from './assets/work_logo/business.png';
 // import cmLogo from './assets/work_logo/cm.png';
 // import imagesearchLogo from './assets/work_logo/image_search.png';
 // import removebgLogo from './assets/work_logo/remove_bg.png';
@@ -178,6 +178,16 @@ export const SkillsInfo = [
       tags: ["HTML", "CSS", "JavaScript"],
       github: "https://github.com/Dikshant0083/TIC-TAC-TOE.git",
       webapp: "https://dikshant0083.github.io/TIC-TAC-TOE/",
+    },
+    {
+      id: 3,
+      title: "My Business Website",
+      description:
+        "CoudharyConstruction – A fully responsive business website showcasing construction materials and plastic pondliners with dynamic product listings and inquiry features.",
+      image: webverLogo,
+      tags: ["HTML", "CSS", "JavaScript"],
+      github: "https://github.com/Dikshant0083/Business-website.git",
+      webapp: "https://business-website-nine-omega.vercel.app/"
     },
     
   ];  
