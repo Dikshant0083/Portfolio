@@ -44,7 +44,7 @@ import movierecLogo from './assets/work_logo/healthquest.png';
 // import taskremLogo from './assets/work_logo/.png';
 import npmLogo from './assets/work_logo/tictac.png';
 import webverLogo from './assets/work_logo/business.png';
-// import cmLogo from './assets/work_logo/cm.png';
+import cmLogo from './assets/work_logo/doctor-patient.png';
 // import imagesearchLogo from './assets/work_logo/image_search.png';
 // import removebgLogo from './assets/work_logo/remove_bg.png';
 
@@ -180,7 +180,7 @@ export const SkillsInfo = [
       webapp: "https://dikshant0083.github.io/TIC-TAC-TOE/",
     },
     {
-      id: 3,
+      id: 4,
       title: "My Business Website",
       description:
         "CoudharyConstruction – A fully responsive business website showcasing construction materials and plastic pondliners with dynamic product listings and inquiry features.",
@@ -189,5 +189,15 @@ export const SkillsInfo = [
       github: "https://github.com/Dikshant0083/Business-website.git",
       webapp: "https://business-website-nine-omega.vercel.app/"
     },
-    
+
+    {
+      id: 5,
+      title: "Doctor-Patient-Hub",
+      description:
+        "Doctor-Patient-Hub is a comprehensive healthcare platform designed to streamline communication between doctors and patients, offering features like appointment booking, medical history tracking, and secure messaging.",
+      image: cmLogo,
+      tags: ["HTML", "CSS", "JavaScript","Node.js", "Express"],
+      github: "https://github.com/Dikshant0083/Patient-ONE.git",
+      webapp: "https://patient-one-00mp.onrender.com/"
+    },
   ];  
