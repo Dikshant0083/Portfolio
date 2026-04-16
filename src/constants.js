@@ -112,8 +112,8 @@ export const SkillsInfo = [
   img: glaLogo, // replace with actual logo variable if available
   school: "Chitkara University, Punjab",
   date: "Sept 2023 - July 2027 (Expected)",
-  grade: "9.21 CGPA (till now)",
-  desc: "I am currently pursuing my Bachelor's degree (B.E.) in Computer Science Engineering from Chitkara University, Punjab. My coursework covers subjects like Data Structures, Algorithms, Object-Oriented Programming, Database Systems, Operating Systems, Web Development, and Computer Networks. With a current CGPA of 9.21, I’ve consistently performed well academically. I have been actively involved in hands-on projects, technical workshops, and hackathons, which have enhanced my practical understanding and professional skills. My time at Chitkara University continues to contribute significantly to my growth as a developer and engineer.",
+  grade: "9.31 CGPA (till now)",
+  desc: "I am currently pursuing my Bachelor's degree (B.E.) in Computer Science Engineering from Chitkara University, Punjab. My coursework covers subjects like Data Structures, Algorithms, Object-Oriented Programming, Database Systems, Operating Systems, Web Development, and Computer Networks. With a current CGPA of 9.31, I’ve consistently performed well academically. I have been actively involved in hands-on projects, technical workshops, and hackathons, which have enhanced my practical understanding and professional skills. My time at Chitkara University continues to contribute significantly to my growth as a developer and engineer.",
   degree: "Bachelor of Engineering (B.E.) in Computer Science",
 },
     
