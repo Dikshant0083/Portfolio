@@ -176,8 +176,8 @@ export const SkillsInfo = [
         "Classic Tic Tac Toe built from scratch using HTML, CSS, and JavaScript – responsive design with interactive gameplay logic for two players.",
       image: npmLogo,
       tags: ["HTML", "CSS", "JavaScript"],
-      github: "https://github.com/Dikshant0083/TIC-TAC-TOE.git",
-      webapp: "https://dikshant0083.github.io/TIC-TAC-TOE/",
+      github: "https://github.com/Dikshant0083/SCT_WD_3.git",
+      webapp: "https://dikshant0083.github.io/SCT_WD_3/",
     },
     {
       id: 4,
