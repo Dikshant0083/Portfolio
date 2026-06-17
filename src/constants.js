@@ -39,7 +39,7 @@ import vpsLogo from './assets/education_logo/Rbselogo.jpg';
 
 // Project Section Logo's
 import githubdetLogo from './assets/work_logo/hospital.png';
-import csprepLogo from './assets/work_logo/chatbot.png';
+import csprepLogo from './assets/work_logo/hireeasy.png';
 import movierecLogo from './assets/work_logo/healthquest.png';
 // import taskremLogo from './assets/work_logo/.png';
 import npmLogo from './assets/work_logo/tictac.png';
@@ -149,16 +149,16 @@ export const SkillsInfo = [
       github: "https://github.com/Dikshant0083/Hospital-management-express.git",
       webapp: "https://hospital-management-express.vercel.app/",
     },
-    {
+   {
       id: 1,
-      title: "Chat-Bot",
+      title: "HireEasy",
       description:
-        "Smart conversational AI chatbot integrated using external AI API – crafted with Node.js and Express.js for seamless real-time interaction and dynamic responses.",
-      image: csprepLogo,
-      tags: [ "Node.js",  "Express", "HTML", "CSS", "JavaScript"],
-      github: "https://github.com/Dikshant0083/ChatBot-Ai.git",
-      webapp: " https://dikshant0083.github.io/ChatBot-Ai/",
-    },
+        "An intelligent job discovery platform that aggregates real-time listings from multiple APIs. Features include automated NLP resume parsing, AI-powered TF-IDF match scoring, built-in resume builder, and daily email alerts.",
+      image: csprepLogo, // Note: You'll need to import your HireEasy logo image and place the variable here
+      tags: ["React", "Tailwind CSS", "Node.js", "Express", "MongoDB", "Redux"],
+      github: "https://github.com/Dikshant0083/HireEasy.git",
+      webapp: "https://hire-easy-gamma.vercel.app",
+},
     {
       id: 2,
       title: "Health-Quest",
