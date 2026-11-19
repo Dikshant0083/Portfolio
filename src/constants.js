@@ -97,16 +97,6 @@ export const navItems = [
   { id: "contact", label: "Contact" },
 ];
 
-// Logos that orbit the portrait in the hero
-export const orbitLogos = [
-  { name: "React", logo: reactjsLogo },
-  { name: "Node.js", logo: nodejsLogo },
-  { name: "MongoDB", logo: mongodbLogo },
-  { name: "Spring Boot", logo: springbootLogo },
-  { name: "Java", logo: javaLogo },
-  { name: "Express", logo: expressjsLogo },
-];
-
 // ---------------------------------------------------------------------------
 // Work experience (newest first)
 // ---------------------------------------------------------------------------

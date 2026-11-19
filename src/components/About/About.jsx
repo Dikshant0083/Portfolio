@@ -8,7 +8,7 @@ import {
 } from "framer-motion";
 import { FiArrowDownRight, FiDownload } from "react-icons/fi";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
-import { heroFacts, orbitLogos, profile } from "../../constants";
+import { heroFacts, profile } from "../../constants";
 import Counter from "../ui/Counter";
 import Magnetic from "../ui/Magnetic";
 import { EASE } from "../ui/motion";
@@ -58,32 +58,11 @@ const RotatingRole = () => {
   );
 };
 
-// Portrait inside a gradient ring, with tech logos placed around it. No motion.
+// Portrait inside a gradient ring. No motion.
 const Portrait = () => (
   <div
-    className="relative mx-auto grid aspect-square w-[min(64vw,20rem)] place-items-center [--r:calc(min(64vw,20rem)/2+1.1rem)] sm:w-[22rem] sm:[--r:13.2rem] lg:w-[18.5rem] lg:[--r:11.4rem] xl:w-[24rem] xl:[--r:14.4rem]"
+    className="relative mx-auto grid aspect-square w-[min(78vw,20rem)] place-items-center sm:w-[22rem] lg:w-[20rem] xl:w-[24rem]"
   >
-    {/* Orbit track */}
-    <div className="absolute inset-[-1.1rem] rounded-full border border-dashed border-line sm:inset-[-2.2rem] lg:inset-[-1.8rem] xl:inset-[-2.4rem]" />
-
-    {/* Tech logos around the photo */}
-    <div className="absolute inset-0">
-      {orbitLogos.map((tech, i) => {
-        const angle = (360 / orbitLogos.length) * i;
-        return (
-          <div
-            key={tech.name}
-            className="absolute left-1/2 top-1/2 -ml-6 -mt-6 h-12 w-12"
-            style={{ transform: `rotate(${angle}deg) translateX(var(--r)) rotate(${-angle}deg)` }}
-          >
-            <div className="grid h-full w-full place-items-center rounded-2xl border border-white/20 bg-ink shadow-[0_8px_24px_-6px_rgba(0,0,0,0.6)]">
-              <img src={tech.logo} alt={tech.name} title={tech.name} className="h-6 w-6 object-contain" />
-            </div>
-          </div>
-        );
-      })}
-    </div>
-
     {/* Glow + gradient ring */}
     <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_200deg,#8B6CFF,#FFB547,#8B6CFF)] opacity-50 blur-2xl" />
     <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_200deg,#8B6CFF,#FFB547,#8B6CFF)]" />
