@@ -1,258 +1,192 @@
-import React, { useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { FiArrowUpRight, FiChevronLeft, FiChevronRight, FiImage } from "react-icons/fi";
+import { certifications, hackathon } from "../../constants";
+import SectionHeading from "../ui/SectionHeading";
+import Modal from "../ui/Modal";
+import { Reveal } from "../ui/Reveal";
+import { EASE } from "../ui/motion";
 
-// 1. Image Imports
-import deloitteImg from '../../assets/deloite.png';
-import jpmorganImg from '../../assets/jpmorgan.png';
-import tataImg from '../../assets/tata.png';
-import hackindiaImg from '../../assets/Hacks1.jpg';
-import hackindiaImg2 from '../../assets/Hacks2.jpg';
-import hackindiaImg3 from '../../assets/Hacks3.jpg';
-import hackindiaImg4 from '../../assets/Hacks4.jpg';
-import hackindiaImg5 from '../../assets/Hacks5.jpg';
-import hackindiaImg6 from '../../assets/Hacks6.jpg';
+// Full-size photo viewer with previous/next buttons and arrow-key support.
+const Gallery = ({ startIndex }) => {
+  const photos = hackathon.gallery;
+  const [[index, dir], setState] = useState([startIndex, 0]);
 
-// 2. Data Array (Syntax errors fixed)
-const achievements = [
-  {
-    title: 'Top 50 Teams - HackIndia Hackathon',
-    organization: 'National Level Hackathon',
-    date: '2025',
-    description:
-      'Selected among the top 50 teams across India for developing a scalable software solution during the HackIndia competition.',
-    image: hackindiaImg,
-    gallery: [
-      { title: 'Hackathon Snapshot 1', image: hackindiaImg },
-      { title: 'Hackathon Snapshot 2', image: hackindiaImg2 },
-      { title: 'Hackathon Snapshot 3', image: hackindiaImg3 },
-      { title: 'Hackathon Snapshot 4', image: hackindiaImg4 },
-      { title: 'Hackathon Snapshot 5', image: hackindiaImg5 },
-      { title: 'Hackathon Snapshot 6', image: hackindiaImg6 },
-      { title: 'Hackathon Certificate', image: hackindiaImg },
-    ],
-    certificateLink: '#',
-  },
-  {
-    title: 'Software Engineering Job Simulation',
-    organization: 'JPMorgan Chase & Co. - Forage',
-    date: 'Jan 2026',
-    description:
-      'Completed tasks involving interface preparation with Perspective, technical stack analysis, and open-source contribution simulations.',
-    image: jpmorganImg,
-    link: 'https://drive.google.com/file/d/1qSEC7ONMayhqWcWstqm0sVjo_HlufIOl/view?usp=drive_link',
-  },
-  {
-    title: 'Cyber Job Simulation',
-    organization: 'Deloitte Australia - Forage',
-    date: 'Dec 2025',
-    description:
-      'Explored forensic analysis, malware analysis, and risk assessment strategies within a simulated corporate environment.',
-    image: deloitteImg,
-    link: 'https://drive.google.com/file/d/18a0-Aa-sgajK2inbB81qtfQa7emYfcR6/view?usp=drive_link',
-  },
-  {
-    title: 'Cybersecurity Analyst Job Simulation',
-    organization: 'TATA - Forage',
-    date: 'Apr 2026',
-    description:
-      'Completed practical tasks involving Identity and Access Management (IAM) fundamentals, IAM strategy assessment, crafting custom IAM solutions, and platform integration.',
-    image: tataImg,
-    link: 'https://drive.google.com/file/d/1BTX9wKK_r0df7O51tWlE31yWLKmzcHEZ/view?usp=drive_link',
-  },
-];
+  const go = useCallback(
+    (step) => setState(([i]) => [(i + step + photos.length) % photos.length, step]),
+    [photos.length]
+  );
 
-// 3. Main Component
-const Achievements = () => {
-  const [selectedAchievement, setSelectedAchievement] = useState(null);
-
-  const openAchievement = (achievement) => {
-    if (achievement.gallery) {
-      setSelectedAchievement(achievement);
-    }
-  };
-
-  const closeAchievement = () => {
-    setSelectedAchievement(null);
-  };
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "ArrowRight") go(1);
+      if (e.key === "ArrowLeft") go(-1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [go]);
 
   return (
-    <>
-      <section id="achievements" className="py-20 px-6 relative">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Heading */}
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-extrabold text-white tracking-tight">
-              Achievements & <span className="text-purple-500">Certifications</span>
-            </h2>
-            <div className="h-1 w-20 bg-purple-600 mx-auto mt-4 rounded-full"></div>
-          </div>
+    <div className="flex min-h-0 flex-col">
+      <div className="border-b border-line px-6 py-5 pr-16 sm:px-8">
+        <p className="text-sm text-marigold">{hackathon.organization}, {hackathon.date}</p>
+        <h3 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">{hackathon.title}</h3>
+      </div>
 
-          {/* Grid Layout for Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {achievements.map((item, index) => {
-              const cardContent = (
-                <>
-                  <div className="relative h-48 overflow-hidden bg-gray-900">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-transform duration-500"
-                      onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/400x250?text=Certificate+Image';
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#111029] to-transparent opacity-60"></div>
-                  </div>
-
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-3">
-                      <span className="text-xs font-bold uppercase tracking-widest text-purple-400">
-                        {item.date}
-                      </span>
-                    </div>
-
-                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
-                      {item.title}
-                    </h3>
-
-                    <p className="text-gray-400 text-sm font-medium mb-4">{item.organization}</p>
-
-                    <p className="text-gray-300 text-sm leading-relaxed mb-6">{item.description}</p>
-
-                    <span className="inline-flex items-center text-sm font-semibold text-white bg-purple-600/20 border border-purple-500/50 px-4 py-2 rounded-lg hover:bg-purple-600 transition-all duration-300">
-                      {item.gallery ? 'View Images & Certificate' : 'View Credential'}
-                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                    </span>
-                  </div>
-                </>
-              );
-
-              // If it has a gallery, wrap in a button to open the modal
-              if (item.gallery) {
-                return (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => openAchievement(item)}
-                    className="group text-left w-full bg-[#111029]/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-purple-500/50 transition-all duration-500 hover:-translate-y-2 shadow-xl"
-                  >
-                    {cardContent}
-                  </button>
-                );
-              }
-
-              // Otherwise, wrap in an anchor tag to go straight to the link
-              return (
-                <a
-                  key={index}
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block w-full bg-[#111029]/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-purple-500/50 transition-all duration-500 hover:-translate-y-2 shadow-xl"
-                >
-                  {cardContent}
-                </a>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Modern, Gallery-Style Modal */}
-      {selectedAchievement && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6"
-          onClick={closeAchievement}
+      <div className="relative grid min-h-0 flex-1 place-items-center overflow-hidden bg-night">
+        <AnimatePresence initial={false} custom={dir} mode="popLayout">
+          <motion.img
+            key={index}
+            src={photos[index].image}
+            alt={photos[index].title}
+            custom={dir}
+            initial={{ opacity: 0, x: dir * 80 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: dir * -80 }}
+            transition={{ duration: 0.45, ease: EASE }}
+            className="max-h-[60vh] w-auto max-w-full object-contain"
+          />
+        </AnimatePresence>
+        <button
+          type="button"
+          onClick={() => go(-1)}
+          aria-label="Previous photo"
+          className="absolute left-3 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-night/80 backdrop-blur transition-colors hover:bg-raised"
         >
-          <div className="relative w-full max-w-6xl" onClick={(e) => e.stopPropagation()}>
-            <div className="relative mx-auto flex max-h-[84vh] w-full flex-col overflow-hidden rounded-2xl border border-white/20 bg-[#0c0b1d] shadow-2xl">
-              
-              {/* Modal Header */}
-              <div className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4 sm:px-6 sm:py-5">
-                <div className="pr-6">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-purple-400">
-                    {selectedAchievement.date}
-                  </p>
-                  <h3 className="mt-2 text-xl font-bold text-white sm:text-2xl">
-                    {selectedAchievement.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-400">{selectedAchievement.organization}</p>
-                </div>
-                
-                <button
+          <FiChevronLeft size={22} />
+        </button>
+        <button
+          type="button"
+          onClick={() => go(1)}
+          aria-label="Next photo"
+          className="absolute right-3 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-night/80 backdrop-blur transition-colors hover:bg-raised"
+        >
+          <FiChevronRight size={22} />
+        </button>
+      </div>
+
+      <div className="flex gap-2 overflow-x-auto border-t border-line p-3">
+        {photos.map((photo, i) => (
+          <button
+            key={photo.title}
+            type="button"
+            onClick={() => setState([i, i > index ? 1 : -1])}
+            aria-label={`Show photo ${i + 1}: ${photo.title}`}
+            aria-current={i === index}
+            className={`h-16 w-24 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
+              i === index ? "border-marigold" : "border-transparent opacity-50 hover:opacity-100"
+            }`}
+          >
+            <img src={photo.image} alt="" className="h-full w-full object-cover" />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Achievements = () => {
+  const [galleryStart, setGalleryStart] = useState(null);
+  const close = useCallback(() => setGalleryStart(null), []);
+  const [a, b, c] = hackathon.gallery;
+
+  return (
+    <section id="achievements" className="section-y relative">
+      <div className="page-x">
+        <SectionHeading title="Achievements">
+          A national hackathon finish and three industry job simulations, each with a certificate
+          you can open.
+        </SectionHeading>
+
+        {/* Hackathon: text with a photo collage */}
+        <Reveal>
+          <div className="grid items-center gap-10 rounded-[2rem] border border-line bg-surface/60 p-5 sm:p-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
+            <div>
+              <p className="text-sm font-medium text-marigold">{hackathon.organization}, {hackathon.date}</p>
+              <h3 className="mt-3 text-[clamp(2rem,4.5vw,3.25rem)] font-bold leading-[0.95] tracking-[-0.02em] [font-stretch:92%] [word-spacing:0.06em]">
+                {hackathon.title}
+              </h3>
+              <p className="mt-5 max-w-md text-mute">{hackathon.description}</p>
+              <button type="button" onClick={() => setGalleryStart(0)} className="btn-ghost mt-8">
+                <FiImage /> View all {hackathon.gallery.length} photos
+              </button>
+            </div>
+
+            <div className="grid h-[22rem] grid-cols-5 grid-rows-2 gap-3 sm:h-[26rem]">
+              {[
+                { photo: a, i: 0, cls: "col-span-3 row-span-2" },
+                { photo: b, i: 1, cls: "col-span-2" },
+                { photo: c, i: 2, cls: "col-span-2" },
+              ].map(({ photo, i, cls }, k) => (
+                <motion.button
+                  key={photo.title}
                   type="button"
-                  onClick={closeAchievement}
-                  className="rounded-full border border-white/10 bg-white/5 p-2 text-white transition hover:bg-white/20 hover:text-red-400 focus:outline-none"
-                  aria-label="Close"
+                  onClick={() => setGalleryStart(i)}
+                  aria-label={`Open photo: ${photo.title}`}
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.7, delay: 0.15 + k * 0.12, ease: EASE }}
+                  className={`group relative overflow-hidden rounded-2xl ${cls}`}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Modal Gallery Area */}
-              <div className="flex-1 overflow-y-auto bg-[#080715] px-5 py-5 sm:px-6 sm:py-6">
-                <p className="mb-5 text-sm leading-relaxed text-gray-300 sm:text-base">
-                  {selectedAchievement.description}
-                </p>
-
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                  {selectedAchievement.gallery.map((entry, index) => (
-                    <div
-                      key={`${entry.title}-${index}`}
-                      className="overflow-hidden rounded-xl border border-white/10 bg-white/5"
-                    >
-                      <div className="aspect-[4/3] overflow-hidden bg-black/30">
-                        <img
-                          src={entry.image}
-                          alt={entry.title}
-                          className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-                          onError={(e) => {
-                            e.target.src =
-                              'https://via.placeholder.com/400x300?text=Image+Not+Found';
-                          }}
-                        />
-                      </div>
-                      <div className="border-t border-white/10 px-3 py-2">
-                        <p className="text-xs font-medium text-gray-200">{entry.title}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Modal Footer */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 bg-[#0c0b1d] px-5 py-4 sm:px-6">
-                {selectedAchievement.certificateLink && selectedAchievement.certificateLink !== '#' && (
-                  <a
-                    href={selectedAchievement.certificateLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-purple-500"
-                  >
-                    View Official Certificate
-                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                )}
-                
-                <button
-                  type="button"
-                  onClick={closeAchievement}
-                  className="inline-flex items-center rounded-lg border border-white/10 px-5 py-2.5 text-sm font-semibold text-gray-300 transition hover:bg-white/10 hover:text-white"
-                >
-                  Close Gallery
-                </button>
-              </div>
-
+                  <img
+                    src={photo.image}
+                    alt={photo.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-night/90 to-transparent p-3 text-left text-xs font-medium opacity-0 transition-opacity group-hover:opacity-100">
+                    {photo.title}
+                  </span>
+                </motion.button>
+              ))}
             </div>
           </div>
+        </Reveal>
+
+        {/* Certifications */}
+        <div className="mt-8 grid gap-6 md:grid-cols-3">
+          {certifications.map((cert, i) => (
+            <motion.a
+              key={cert.title}
+              href={cert.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}
+              whileHover={{ y: -6 }}
+              className="group flex flex-col overflow-hidden rounded-[1.75rem] border border-line bg-surface/60 transition-colors hover:border-violet/60"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden bg-white">
+                <img
+                  src={cert.image}
+                  alt={`${cert.organization} certificate`}
+                  loading="lazy"
+                  className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+              <div className="flex flex-1 flex-col p-6">
+                <p className="text-sm text-mute">
+                  {cert.organization} on {cert.platform}, {cert.date}
+                </p>
+                <h3 className="mt-2 text-xl font-bold leading-tight tracking-tight">{cert.title}</h3>
+                <p className="mt-3 flex-1 text-[0.95rem] text-mute">{cert.description}</p>
+                <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-ink">
+                  View certificate
+                  <FiArrowUpRight className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </span>
+              </div>
+            </motion.a>
+          ))}
         </div>
-      )}
-    </>
+      </div>
+
+      <Modal open={galleryStart !== null} onClose={close} label="HackIndia photo gallery" wide>
+        {galleryStart !== null && <Gallery startIndex={galleryStart} />}
+      </Modal>
+    </section>
   );
 };
 

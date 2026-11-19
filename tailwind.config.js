@@ -1,24 +1,53 @@
-// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      colors: {
+        night: "#0C1024", // page background
+        surface: "#151A3A", // cards and panels
+        raised: "#1C2248", // hovered / elevated surfaces
+        line: "#272E57", // borders and dividers
+        ink: "#ECEBFA", // primary text
+        mute: "#9A9DC0", // secondary text
+        violet: "#8B6CFF", // brand accent
+        marigold: "#FFB547", // secondary accent, used sparingly
+      },
+      fontFamily: {
+        display: ['"Bricolage Grotesque Variable"', "system-ui", "sans-serif"],
+        sans: ['"Instrument Sans Variable"', "system-ui", "sans-serif"],
+      },
+      maxWidth: {
+        page: "76rem",
+      },
       keyframes: {
-        blob: {
-          '0%': { transform: 'scale(1)' },
-          '33%': { transform: 'scale(1.2)' },
-          '66%': { transform: 'scale(0.8)' },
-          '100%': { transform: 'scale(1)' },
+        marquee: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
+        },
+        spin: {
+          to: { transform: "rotate(360deg)" },
+        },
+        "spin-reverse": {
+          to: { transform: "rotate(-360deg)" },
+        },
+        drift: {
+          "0%, 100%": { transform: "translate(0, 0) scale(1)" },
+          "33%": { transform: "translate(6%, -4%) scale(1.08)" },
+          "66%": { transform: "translate(-5%, 5%) scale(0.95)" },
+        },
+        ping: {
+          "75%, 100%": { transform: "scale(2.2)", opacity: "0" },
         },
       },
       animation: {
-        blob: 'blob 10s infinite',
-      },
-      backgroundImage: {
-        'skills-gradient': 'linear-gradient(38.73deg, rgba(204, 0, 187, 0.15) 0%, rgba(201, 32, 184, 0) 50%), linear-gradient(141.27deg, rgba(0, 70, 209, 0) 50%, rgba(0, 70, 209, 0.15) 100%)',
+        marquee: "marquee 40s linear infinite",
+        "spin-slow": "spin 14s linear infinite",
+        orbit: "spin 40s linear infinite",
+        "orbit-counter": "spin-reverse 40s linear infinite",
+        drift: "drift 22s ease-in-out infinite",
+        "drift-slow": "drift 30s ease-in-out infinite reverse",
+        ping: "ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite",
       },
     },
   },

@@ -1,80 +1,94 @@
-import React from "react";
-import { education } from "../../constants"; // Import the education data
+import { useRef } from "react";
+import { motion, useScroll, useSpring } from "framer-motion";
+import { education } from "../../constants";
+import SectionHeading from "../ui/SectionHeading";
+import { EASE } from "../ui/motion";
 
 const Education = () => {
+  const listRef = useRef(null);
+  // The timeline line fills in as the list scrolls through the viewport.
+  const { scrollYProgress } = useScroll({ target: listRef, offset: ["start 75%", "end 60%"] });
+  const scaleY = useSpring(scrollYProgress, { stiffness: 90, damping: 25 });
+
   return (
-    <section
-      id="education"
-      className="py-24 pb-24 px-[12vw] md:px-[7vw] lg:px-[16vw] font-sans bg-skills-gradient clip-path-custom-3"
-    >
-      {/* Section Title */}
-      <div className="text-center mb-16">
-        <h2 className="text-4xl font-bold text-white">EDUCATION</h2>
-        <div className="w-32 h-1 bg-purple-500 mx-auto mt-4"></div>
-        <p className="text-gray-400 mt-4 text-lg font-semibold">
-          My education has been a journey of learning and development. Here are the details of my academic background
-        </p>
-      </div>
+    <section id="education" className="section-y relative">
+      <div className="page-x">
+        <SectionHeading title="Education">
+          From a science foundation in Rajasthan to Computer Science Engineering at Chitkara
+          University.
+        </SectionHeading>
 
-      {/* Education Timeline */}
-      <div className="relative">
-        {/* Vertical line */}
-        <div className="absolute sm:left-1/2 left-0 transform -translate-x-1/2 sm:-translate-x-0 w-1 bg-white h-full"></div>
+        <ol ref={listRef} className="relative ml-3 sm:ml-5">
+          {/* Track and animated fill */}
+          <span aria-hidden="true" className="absolute bottom-2 left-0 top-2 w-px bg-line" />
+          <motion.span
+            aria-hidden="true"
+            style={{ scaleY }}
+            className="absolute bottom-2 left-0 top-2 w-px origin-top bg-gradient-to-b from-marigold via-violet to-violet"
+          />
 
-        {/* Education Entries */}
-        {education.map((edu, index) => (
-          <div
-            key={edu.id}
-            className={`flex flex-col sm:flex-row items-center mb-16 ${
-              index % 2 === 0 ? "sm:justify-start" : "sm:justify-end"
-            }`}
-          >
-            {/* Timeline Circle */}
-            {/* <div className="absolute sm:left-1/2 left-0 transform -translate-x-1/2 bg-gray-400 border-4 border-[#8245ec] w-12 h-12 sm:w-16 sm:h-16 rounded-full flex justify-center items-center z-10">
-              <img
-                //src={edu.img}
-                alt={edu.school}
-                className="w-full h-full object-cover rounded-full"
-              />
-            </div> */}
-
-            {/* Content Section */}
-            <div
-              className={`w-full sm:max-w-md p-4 sm:p-8 rounded-2xl shadow-2xl border border-white bg-gray-900 backdrop-blur-md shadow-[0_0_20px_1px_rgba(130,69,236,0.3)] ${
-                index % 2 === 0 ? "sm:ml-0" : "sm:mr-0"
-              } sm:ml-44 sm:mr-44 ml-8 transform transition-transform duration-300 hover:scale-105`}
+          {education.map((edu, i) => (
+            <motion.li
+              key={edu.id}
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.7, delay: 0.05 * i, ease: EASE }}
+              className="relative pb-12 pl-10 last:pb-0 sm:pl-16"
             >
-              {/* Flex container for image and text */}
-              <div className="flex items-center space-x-6">
-                {/* School Logo/Image */}
-                <div className="w-24 h-16 bg-white rounded-md overflow-hidden">
+              {/* Node */}
+              <span className="absolute -left-[7px] top-8 flex h-[15px] w-[15px] items-center justify-center">
+                {edu.current && (
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-marigold/70" />
+                )}
+                <span
+                  className={`relative h-[15px] w-[15px] rounded-full border-2 ${
+                    edu.current ? "border-marigold bg-marigold" : "border-violet bg-night"
+                  }`}
+                />
+              </span>
+
+              <div className="rounded-[1.75rem] border border-line bg-surface/60 p-6 transition-colors hover:border-violet/50 sm:p-8">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
                   <img
                     src={edu.img}
-                    alt={edu.school}
-                    className="w-full h-full object-cover"
+                    alt={`${edu.school} logo`}
+                    loading="lazy"
+                    className="h-16 w-16 shrink-0 rounded-2xl bg-white object-contain p-1.5"
                   />
-                </div>
-
-                {/* Degree, School Name, and Date */}
-                <div className="flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-xl sm:text-xl font-semibold text-white">
-                      {edu.degree}
-                    </h3>
-                    <h4 className="text-md sm:text-sm text-gray-300">
-                      {edu.school}
-                    </h4>
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                      <p className="text-sm text-mute">{edu.date}</p>
+                      {edu.current && (
+                        <span className="rounded-full bg-marigold/15 px-2.5 py-0.5 text-xs font-semibold text-marigold">
+                          Currently studying
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="mt-2 text-2xl font-bold leading-tight tracking-tight">{edu.degree}</h3>
+                    <p className="mt-1 text-ink/80">{edu.school}</p>
+                    <p className="mt-4 text-mute">{edu.desc}</p>
+                    {edu.coursework && (
+                      <ul className="mt-5 flex flex-wrap gap-2" aria-label="Coursework">
+                        {edu.coursework.map((c) => (
+                          <li key={c} className="chip">
+                            {c}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                  {/* Date at the bottom */}
-                  <p className="text-sm text-gray-500 mt-2">{edu.date}</p>
+                  <div className="shrink-0 sm:text-right">
+                    <p className="font-display text-3xl font-bold tracking-tight">{edu.grade.split(" ")[0]}</p>
+                    <p className="text-sm text-mute">
+                      {edu.grade.includes("CGPA") ? "CGPA so far" : "Board result"}
+                    </p>
+                  </div>
                 </div>
               </div>
-
-              <p className="mt-4 text-gray-400 font-bold">Grade: {edu.grade}</p>
-              <p className="mt-4 text-gray-400">{edu.desc}</p>
-            </div>
-          </div>
-        ))}
+            </motion.li>
+          ))}
+        </ol>
       </div>
     </section>
   );

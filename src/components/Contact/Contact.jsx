@@ -1,63 +1,79 @@
-import React, { useRef, useState } from "react";
-import emailjs from "@emailjs/browser";
+import { useRef, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { FaEnvelope, FaGithub, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
+import { AnimatePresence, motion } from "framer-motion";
+import { FaGithub, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
+import { FiArrowUpRight, FiCheck, FiCopy, FiSend } from "react-icons/fi";
 import "react-toastify/dist/ReactToastify.css";
+import { profile } from "../../constants";
+import { Reveal } from "../ui/Reveal";
+import { EASE } from "../ui/motion";
 
-const CONTACT_EMAIL = "khileridikshant@gmail.com";
-const EMAILJS_CONFIG = {
-  serviceId: "service_8wyighj",
-  templateId: "template_19ug2zh",
-  publicKey: "YINI_Oo-3qKpCJRSb",
-};
+const CONTACT_EMAIL = profile.email;
 
 const contactMethods = [
-  {
-    title: "Email",
-    value: CONTACT_EMAIL,
-    href: `mailto:${CONTACT_EMAIL}`,
-    icon: FaEnvelope,
-    accent: "from-rose-500/25 to-orange-500/10",
-    note: "Best for opportunities, collaborations, and detailed conversations.",
-  },
-  {
-    title: "WhatsApp",
-    value: "+91 74248 33954",
-    href: "https://wa.me/917424833954",
-    icon: FaWhatsapp,
-    accent: "from-emerald-500/25 to-lime-500/10",
-    note: "Fastest way to reach me for quick chats and project discussions.",
-  },
-  {
-    title: "LinkedIn",
-    value: "linkedin.com/in/dikshantchoudhary",
-    href: "https://www.linkedin.com/in/dikshantchoudhary/?skipRedirect=true",
-    icon: FaLinkedinIn,
-    accent: "from-sky-500/25 to-blue-500/10",
-    note: "Connect with me professionally and explore my background.",
-  },
-  {
-    title: "GitHub",
-    value: "github.com/Dikshant0083",
-    href: "https://github.com/Dikshant0083",
-    icon: FaGithub,
-    accent: "from-fuchsia-500/20 to-violet-500/10",
-    note: "Check out my repositories, projects, and recent code.",
-  },
+  { title: "WhatsApp", value: profile.phone, href: profile.whatsapp, icon: FaWhatsapp },
+  { title: "LinkedIn", value: "in/dikshantchoudhary", href: profile.linkedin, icon: FaLinkedinIn },
+  { title: "GitHub", value: "Dikshant0083", href: profile.github, icon: FaGithub },
 ];
 
-const buildMailtoLink = ({ user_name, user_email, subject, message }) => {
-  const mailSubject = subject?.trim() || "Portfolio Contact";
-  const mailBody = [
-    `Name: ${user_name || ""}`,
-    `Email: ${user_email || ""}`,
-    "",
-    message || "",
-  ].join("\n");
+const toastOptions = {
+  position: "top-right",
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  theme: "dark",
+};
 
-  return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
-    mailSubject
-  )}&body=${encodeURIComponent(mailBody)}`;
+const buildMailtoLink = ({ name, email, subject, message }) => {
+  const mailSubject = subject?.trim() || "Portfolio Contact";
+  const mailBody = [`Name: ${name || ""}`, `Email: ${email || ""}`, "", message || ""].join("\n");
+  return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
+};
+
+const CopyEmail = () => {
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(CONTACT_EMAIL);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      window.location.href = `mailto:${CONTACT_EMAIL}`;
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      className="group mt-8 flex w-full items-center justify-between gap-4 rounded-2xl border border-line bg-night/60 px-5 py-4 text-left transition-colors hover:border-violet/60"
+    >
+      <span className="min-w-0">
+        <span className="block text-sm text-mute">Email me at</span>
+        <span className="block truncate font-display text-lg font-semibold tracking-tight sm:text-xl">
+          {CONTACT_EMAIL}
+        </span>
+      </span>
+      <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-violet text-white">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={copied ? "done" : "copy"}
+            initial={{ scale: 0.4, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.4, opacity: 0 }}
+            transition={{ duration: 0.18 }}
+          >
+            {copied ? <FiCheck size={18} /> : <FiCopy size={18} />}
+          </motion.span>
+        </AnimatePresence>
+      </span>
+      <span className="sr-only" aria-live="polite">
+        {copied ? "Email address copied" : "Copy email address"}
+      </span>
+    </button>
+  );
 };
 
 const Contact = () => {
@@ -66,178 +82,172 @@ const Contact = () => {
 
   const sendEmail = async (e) => {
     e.preventDefault();
-    setIsSending(true);
+    if (isSending) return;
 
     const formData = new FormData(form.current);
-    const templateParams = {
-      user_name: formData.get("user_name")?.toString().trim() || "",
-      from_name: formData.get("user_name")?.toString().trim() || "",
-      user_email: formData.get("user_email")?.toString().trim() || "",
-      from_email: formData.get("user_email")?.toString().trim() || "",
-      reply_to: formData.get("user_email")?.toString().trim() || "",
-      subject: formData.get("subject")?.toString().trim() || "",
-      title: formData.get("subject")?.toString().trim() || "",
-      message: formData.get("message")?.toString().trim() || "",
-      to_email: CONTACT_EMAIL,
+    const get = (key) => formData.get(key)?.toString().trim() || "";
+    const payload = {
+      name: get("user_name"),
+      email: get("user_email"),
+      subject: get("subject"),
+      message: get("message"),
     };
 
-    try {
-      await emailjs.send(
-        EMAILJS_CONFIG.serviceId,
-        EMAILJS_CONFIG.templateId,
-        templateParams,
-        {
-          publicKey: EMAILJS_CONFIG.publicKey,
-        }
-      );
-
+    // Honeypot: real visitors never fill this hidden field, so treat it as sent and stop.
+    if (get("website")) {
       form.current.reset();
-      toast.success("Message sent successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
+      return;
+    }
+
+    // Form not set up yet: hand over to the visitor's email app so the message isn't lost.
+    if (!profile.web3formsAccessKey) {
+      toast.info("Opening your email app to send the message.", { ...toastOptions, autoClose: 3500 });
+      window.location.href = buildMailtoLink(payload);
+      return;
+    }
+
+    setIsSending(true);
+    let result = null;
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: profile.web3formsAccessKey,
+          from_name: "Portfolio contact form",
+          subject: `Portfolio: ${payload.subject}`,
+          name: payload.name,
+          email: payload.email,
+          replyto: payload.email,
+          message: payload.message,
+        }),
       });
+      result = await response.json().catch(() => null);
     } catch (error) {
-      const errorMessage =
-        error?.text || error?.message || "EmailJS request failed";
+      console.error("Contact request failed:", error);
+    }
+    setIsSending(false);
 
-      console.error("Error sending message:", error);
-      toast.info("Email service is unavailable. Opening your email app instead.", {
-        position: "top-right",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
+    if (result?.success) {
+      form.current.reset();
+      toast.success("Message sent. I'll reply by email soon.", { ...toastOptions, autoClose: 3500 });
+    } else {
+      console.error("Web3Forms error:", result?.message);
+      toast.info("The form couldn't send your message, so your email app is opening instead.", {
+        ...toastOptions,
+        autoClose: 4500,
       });
-
-      window.location.href = buildMailtoLink(templateParams);
-      console.warn("EmailJS fallback triggered:", errorMessage);
-    } finally {
-      setIsSending(false);
+      window.location.href = buildMailtoLink(payload);
     }
   };
 
   return (
-    <section
-      id="contact"
-      className="px-[8vw] py-24 md:px-[7vw] lg:px-[10vw]"
-    >
+    <section id="contact" className="section-y relative overflow-hidden">
       <ToastContainer />
+      <div className="page-x">
+        <div className="grid gap-12 lg:grid-cols-[1fr_1fr] lg:gap-16">
+          {/* Left: invitation and direct links */}
+          <div>
+            <Reveal>
+              <h2 className="text-[clamp(3rem,7.5vw,6rem)] font-bold leading-[0.92] tracking-[-0.015em] [font-stretch:92%] [word-spacing:0.06em]">
+                Let&apos;s build something together.
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="mt-6 max-w-md text-mute">
+                I&apos;m open to new opportunities, freelance projects and collaborations. Send a message
+                and I&apos;ll get back to you, usually within a day.
+              </p>
+            </Reveal>
+            <Reveal delay={0.15}>
+              <CopyEmail />
+            </Reveal>
 
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-16 text-center">
-          <h2 className="text-4xl font-bold text-white">CONTACT</h2>
-          <div className="mx-auto mt-4 h-1 w-32 rounded-full bg-purple-500"></div>
-          <p className="mx-auto mt-4 max-w-2xl text-lg font-semibold text-gray-400">
-            Reach out through the form or connect with me directly on the platforms
-            below.
-          </p>
-        </div>
-
-        <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-3xl border border-white/10 bg-[#0d081f]/90 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:p-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-purple-300">
-              Direct Contact
-            </p>
-            <h3 className="mt-4 text-3xl font-bold text-white">
-              Let&apos;s build something meaningful together.
-            </h3>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-gray-400">
-              Whether you want to discuss a project, a role, a collaboration, or just
-              say hello, you can reach me on the platforms below.
-            </p>
-
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              {contactMethods.map((item) => {
-                const Icon = item.icon;
-
+            <ul className="mt-4 divide-y divide-line border-y border-line">
+              {contactMethods.map((m, i) => {
+                const Icon = m.icon;
+                const external = !m.href.startsWith("mailto:");
                 return (
-                  <a
-                    key={item.title}
-                    href={item.href}
-                    target={item.href.startsWith("mailto:") ? undefined : "_blank"}
-                    rel={item.href.startsWith("mailto:") ? undefined : "noopener noreferrer"}
-                    className={`group rounded-2xl border border-white/10 bg-gradient-to-br ${item.accent} p-[1px] transition duration-300 hover:-translate-y-1`}
+                  <motion.li
+                    key={m.title}
+                    initial={{ opacity: 0, x: -16 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.2 + i * 0.07, ease: EASE }}
                   >
-                    <div className="h-full rounded-2xl bg-[#140f29] px-5 py-5">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/8 text-lg text-white">
-                          <Icon />
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-purple-200">
-                            {item.title}
-                          </p>
-                          <p className="mt-1 break-all text-sm font-medium text-white">
-                            {item.value}
-                          </p>
-                        </div>
-                      </div>
-
-                      <p className="mt-4 text-sm leading-6 text-gray-400">{item.note}</p>
-                    </div>
-                  </a>
+                    <a
+                      href={m.href}
+                      target={external ? "_blank" : undefined}
+                      rel={external ? "noopener noreferrer" : undefined}
+                      className="group flex items-center gap-4 py-4 transition-colors"
+                    >
+                      <span className="grid h-10 w-10 place-items-center rounded-xl border border-line text-mute transition-colors group-hover:border-violet group-hover:bg-violet group-hover:text-white">
+                        <Icon size={16} />
+                      </span>
+                      <span className="w-24 text-sm text-mute">{m.title}</span>
+                      <span className="flex-1 truncate font-medium transition-transform duration-300 group-hover:translate-x-1">
+                        {m.value}
+                      </span>
+                      <FiArrowUpRight className="text-mute transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-marigold" />
+                    </a>
+                  </motion.li>
                 );
               })}
-            </div>
+            </ul>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-[#0d081f] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:p-8">
-            <div className="mb-6">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-purple-300">
-                Contact Form
-              </p>
-              <h3 className="mt-3 text-2xl font-semibold text-white">Send a message</h3>
-              <p className="mt-2 text-sm leading-6 text-gray-400">
-                If you prefer email, fill out the form and I&apos;ll get back to you soon.
-              </p>
+          {/* Right: form */}
+          <Reveal delay={0.1}>
+            <div className="rounded-[2rem] border border-line bg-surface/70 p-6 shadow-[0_40px_100px_-40px_rgba(139,108,255,0.45)] sm:p-9">
+              <h3 className="text-2xl font-bold tracking-tight">Send a message</h3>
+              <p className="mt-1.5 text-[0.95rem] text-mute">All fields are required.</p>
+
+              <form ref={form} onSubmit={sendEmail} className="mt-7 grid gap-4">
+                {/* Honeypot: hidden from people, often filled in by spam bots */}
+                <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+                  <label>
+                    Website
+                    <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+                  </label>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="grid gap-1.5 text-sm text-mute">
+                    Your name
+                    <input type="text" name="user_name" required maxLength={100} autoComplete="name" className="field" />
+                  </label>
+                  <label className="grid gap-1.5 text-sm text-mute">
+                    Your email
+                    <input type="email" name="user_email" required maxLength={200} autoComplete="email" className="field" />
+                  </label>
+                </div>
+                <label className="grid gap-1.5 text-sm text-mute">
+                  Subject
+                  <input type="text" name="subject" required maxLength={200} className="field" />
+                </label>
+                <label className="grid gap-1.5 text-sm text-mute">
+                  Message
+                  <textarea name="message" rows="6" required maxLength={5000} className="field resize-y" />
+                </label>
+                <motion.button
+                  type="submit"
+                  disabled={isSending}
+                  whileTap={{ scale: 0.98 }}
+                  className="btn-primary mt-2 w-full !py-4 text-base disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isSending ? (
+                    <>
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                      Sending…
+                    </>
+                  ) : (
+                    <>
+                      Send message <FiSend />
+                    </>
+                  )}
+                </motion.button>
+              </form>
             </div>
-
-            <form ref={form} onSubmit={sendEmail} className="flex flex-col space-y-4">
-              <input
-                type="email"
-                name="user_email"
-                placeholder="Your Email"
-                required
-                className="w-full rounded-xl border border-gray-700 bg-[#131025] px-4 py-3 text-white focus:border-purple-500 focus:outline-none"
-              />
-              <input
-                type="text"
-                name="user_name"
-                placeholder="Your Name"
-                required
-                className="w-full rounded-xl border border-gray-700 bg-[#131025] px-4 py-3 text-white focus:border-purple-500 focus:outline-none"
-              />
-              <input
-                type="text"
-                name="subject"
-                placeholder="Subject"
-                required
-                className="w-full rounded-xl border border-gray-700 bg-[#131025] px-4 py-3 text-white focus:border-purple-500 focus:outline-none"
-              />
-              <textarea
-                name="message"
-                placeholder="Message"
-                rows="5"
-                required
-                className="w-full rounded-xl border border-gray-700 bg-[#131025] px-4 py-3 text-white focus:border-purple-500 focus:outline-none"
-              />
-
-              <button
-                type="submit"
-                disabled={isSending}
-                className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {isSending ? "Sending..." : "Send Message"}
-              </button>
-            </form>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

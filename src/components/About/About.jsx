@@ -1,80 +1,215 @@
-import React from 'react';
-import ReactTypingEffect from 'react-typing-effect';
-import Tilt from 'react-parallax-tilt';
-import profileImage from '../../assets/Profile2.jpeg';
+import { useEffect, useState } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useSpring,
+} from "framer-motion";
+import { FiArrowDownRight, FiDownload } from "react-icons/fi";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { heroFacts, orbitLogos, profile } from "../../constants";
+import Counter from "../ui/Counter";
+import Magnetic from "../ui/Magnetic";
+import { EASE } from "../ui/motion";
+
+// Splits a word into letters that rise into place one after another.
+const AnimatedWord = ({ word, delay }) => (
+  <span className="block overflow-hidden pb-[0.12em]" aria-hidden="true">
+    {word.split("").map((char, i) => (
+      <motion.span
+        key={`${char}-${i}`}
+        className="inline-block cursor-default will-change-transform"
+        initial={{ y: "110%", rotate: 8 }}
+        animate={{ y: "0%", rotate: 0 }}
+        transition={{ duration: 0.9, delay: delay + i * 0.045, ease: EASE }}
+        whileHover={{ y: "-8%", color: "#FFB547", transition: { duration: 0.2 } }}
+      >
+        {char}
+      </motion.span>
+    ))}
+  </span>
+);
+
+// Cycles through the phrases in `profile.roles`.
+const RotatingRole = () => {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setIndex((i) => (i + 1) % profile.roles.length), 2800);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <span className="relative grid overflow-hidden">
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={profile.roles[index]}
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: "0%", opacity: 1 }}
+          exit={{ y: "-100%", opacity: 0 }}
+          transition={{ duration: 0.55, ease: EASE }}
+          className="col-start-1 row-start-1 whitespace-nowrap font-semibold text-ink"
+        >
+          {profile.roles[index]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+};
+
+// Portrait inside a gradient ring, with tech logos placed around it. No motion.
+const Portrait = () => (
+  <div
+    className="relative mx-auto grid aspect-square w-[min(64vw,20rem)] place-items-center [--r:calc(min(64vw,20rem)/2+1.1rem)] sm:w-[22rem] sm:[--r:13.2rem] lg:w-[18.5rem] lg:[--r:11.4rem] xl:w-[24rem] xl:[--r:14.4rem]"
+  >
+    {/* Orbit track */}
+    <div className="absolute inset-[-1.1rem] rounded-full border border-dashed border-line sm:inset-[-2.2rem] lg:inset-[-1.8rem] xl:inset-[-2.4rem]" />
+
+    {/* Tech logos around the photo */}
+    <div className="absolute inset-0">
+      {orbitLogos.map((tech, i) => {
+        const angle = (360 / orbitLogos.length) * i;
+        return (
+          <div
+            key={tech.name}
+            className="absolute left-1/2 top-1/2 -ml-6 -mt-6 h-12 w-12"
+            style={{ transform: `rotate(${angle}deg) translateX(var(--r)) rotate(${-angle}deg)` }}
+          >
+            <div className="grid h-full w-full place-items-center rounded-2xl border border-white/20 bg-ink shadow-[0_8px_24px_-6px_rgba(0,0,0,0.6)]">
+              <img src={tech.logo} alt={tech.name} title={tech.name} className="h-6 w-6 object-contain" />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    {/* Glow + gradient ring */}
+    <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_200deg,#8B6CFF,#FFB547,#8B6CFF)] opacity-50 blur-2xl" />
+    <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_200deg,#8B6CFF,#FFB547,#8B6CFF)]" />
+
+    {/* Photo */}
+    <div className="absolute inset-[5px] overflow-hidden rounded-full bg-night">
+      <img
+        src={profile.photo}
+        alt="Portrait of Dikshant Choudhary"
+        className="h-full w-full scale-[1.12] object-cover object-[50%_35%]"
+        fetchpriority="high"
+      />
+    </div>
+  </div>
+);
 
 const About = () => {
+  // Cursor-following spotlight over the dot grid
+  const mx = useSpring(useMotionValue(-500), { stiffness: 120, damping: 20 });
+  const my = useSpring(useMotionValue(-500), { stiffness: 120, damping: 20 });
+  const glow = useMotionTemplate`radial-gradient(520px circle at ${mx}px ${my}px, rgba(139,108,255,0.16), transparent 65%)`;
+  const dotsMask = useMotionTemplate`radial-gradient(260px circle at ${mx}px ${my}px, #000 0%, transparent 100%)`;
+
+  const onPointerMove = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    mx.set(e.clientX - r.left);
+    my.set(e.clientY - r.top);
+  };
+
+  const fade = (delay) => ({
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.8, delay, ease: EASE },
+  });
+
   return (
     <section
       id="about"
-      className="py-4 px-[7vw] md:px-[7vw] lg:px-[20vw] font-sans mt-16 md:mt-24 lg:mt-32"
+      onPointerMove={onPointerMove}
+      className="relative flex min-h-[100svh] items-center overflow-hidden pb-16 pt-32 lg:pt-28"
     >
-      <div className="flex flex-col-reverse md:flex-row justify-between items-center">
-        {/* Left Side */}
-        <div className="md:w-1/2 text-center md:text-left mt-8 md:mt-0">
-          {/* Greeting */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2 leading-tight">
-            Hi, I am
+      {/* Background layers */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="dot-grid absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,#000_40%,transparent_100%)]" />
+        <motion.div
+          className="dot-grid absolute inset-0 [background-image:radial-gradient(rgba(255,181,71,0.55)_1px,transparent_1px)]"
+          style={{ maskImage: dotsMask, WebkitMaskImage: dotsMask }}
+        />
+        <motion.div className="absolute inset-0" style={{ background: glow }} />
+      </div>
+
+      <div className="page-x relative grid items-center gap-16 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-10">
+        {/* Text */}
+        <div>
+          <motion.p {...fade(0.1)} className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-line bg-surface/60 py-1.5 pl-3 pr-4 text-sm text-mute backdrop-blur">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-marigold" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-marigold" />
+            </span>
+            {profile.location}
+          </motion.p>
+
+          <h1 className="font-display text-[clamp(3.6rem,11.5vw,8.6rem)] font-bold leading-[0.88] tracking-[-0.02em] [font-stretch:92%]">
+            <span className="sr-only">
+              {profile.firstName} {profile.lastName}
+            </span>
+            <AnimatedWord word={profile.firstName} delay={0.25} />
+            <AnimatedWord word={profile.lastName} delay={0.55} />
           </h1>
-          {/* Name */}
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 leading-tight">
-            Dikshant Choudhary
-          </h2>
-          {/* Skills Heading with Typing Effect */}
-          <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 text-[#8245ec] leading-tight">
-            <span className="text-white">I am a </span>
-            <ReactTypingEffect
-              text={[
-                'Fullstack Developer',
-                'App Developer',
-                'UI/UX Designer',
-                'Coder',
-              ]}
-              speed={100}
-              eraseSpeed={50}
-              typingDelay={500}
-              eraseDelay={2000}
-              cursorRenderer={(cursor) => (
-                <span className="text-[#8245ec]">{cursor}</span>
-              )}
-            />
-          </h3>
-          {/* About Me Paragraph */}
-          <p className="text-base sm:text-lg md:text-lg text-gray-400 mb-10 mt-8 leading-relaxed">
-           I'm a passionate Computer Science student with a strong interest in full-stack web development and problem-solving. I build real-world applications using HTML, CSS, JavaScript, Node.js, Express.js, and MongoDB. From interactive games to AI chatbots and health-tracking apps, my projects reflect clean code and user-focused design. I’m always eager to learn new technologies and contribute to impactful solutions.
-          </p>
-          {/* Resume Button */}
-          <a
-            href="https://drive.google.com/file/d/1xUyvYQvH7i9jp8wQxe3jIqwIHhYiuWsU/view?usp=drive_link"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block text-white py-3 px-8 rounded-full mt-5 text-lg font-bold transition duration-300 transform hover:scale-105"
-            style={{
-              background: 'linear-gradient(90deg, #8245ec, #a855f7)',
-              boxShadow: '0 0 2px #8245ec, 0 0 2px #8245ec, 0 0 40px #8245ec',
-            }}
-          >
-            DOWNLOAD CV
-          </a>
-          
+
+          <motion.p {...fade(1.1)} className="mt-7 text-[clamp(1.15rem,2.2vw,1.5rem)] leading-snug text-mute">
+            Full-stack developer building
+            <RotatingRole />
+          </motion.p>
+
+          <motion.p {...fade(1.25)} className="mt-6 max-w-[34rem] text-mute">
+            {profile.intro}
+          </motion.p>
+
+          <motion.div {...fade(1.4)} className="mt-9 flex flex-wrap items-center gap-3">
+            <Magnetic>
+              <a href="#work" className="btn-primary">
+                See my projects <FiArrowDownRight />
+              </a>
+            </Magnetic>
+            <a href={profile.resume} target="_blank" rel="noopener noreferrer" className="btn-ghost">
+              <FiDownload /> Download CV
+            </a>
+            <div className="ml-1 flex items-center gap-1">
+              <a
+                href={profile.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className="grid h-11 w-11 place-items-center rounded-full text-mute transition-colors hover:bg-white/5 hover:text-ink"
+              >
+                <FaGithub size={20} />
+              </a>
+              <a
+                href={profile.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="grid h-11 w-11 place-items-center rounded-full text-mute transition-colors hover:bg-white/5 hover:text-ink"
+              >
+                <FaLinkedin size={20} />
+              </a>
+            </div>
+          </motion.div>
+
+          <motion.dl {...fade(1.55)} className="mt-12 grid max-w-xl grid-cols-3 divide-x divide-line border-t border-line pt-6">
+            {heroFacts.map((fact, i) => (
+              <div key={fact.label} className={i === 0 ? "pr-4" : "px-4"}>
+                <dt className="sr-only">{fact.label}</dt>
+                <dd className="font-display text-[clamp(1.6rem,3.5vw,2.4rem)] font-bold leading-none tracking-tight">
+                  <Counter value={fact.value} decimals={fact.decimals} prefix={fact.prefix} delay={1.6} />
+                </dd>
+                <dd className="mt-2 text-sm leading-snug text-mute">{fact.label}</dd>
+              </div>
+            ))}
+          </motion.dl>
         </div>
-        {/* Right Side */}
-        <div className="md:w-1/2 flex justify-center md:justify-end">
-          <Tilt
-            className="w-48 h-48 sm:w-64 sm:h-64 md:w-[30rem] md:h-[30rem] border-4 border-purple-700 rounded-full"
-            tiltMaxAngleX={20}
-            tiltMaxAngleY={20}
-            perspective={1000}
-            scale={1.05}
-            transitionSpeed={1000}
-            gyroscope={true}
-          >
-            <img
-              src={profileImage}
-              alt="Dikshant Choudhary"
-              className="w-full h-full rounded-full object-cover drop-shadow-[0_10px_20px_rgba(130,69,236,0.5)]"
-            />
-          </Tilt>
+
+        {/* Portrait */}
+        <div className="py-8 lg:py-0">
+          <Portrait />
         </div>
       </div>
     </section>
